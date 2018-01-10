@@ -4,20 +4,36 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 public class MainActivity extends AppCompatActivity {
 
+    ListView lv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        lv=findViewById(R.id.listView);
     }
 
     public void click1(View v)
@@ -26,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
            @Override
            public void run() {
                super.run();
-               String str_url = "https://www.esunbank.com.tw/bank/personal/deposit/rate/forex/foreign-exchange-rates";
+               //玉山銀行匯率查詢
+               //String str_url = "https://www.esunbank.com.tw/bank/personal/deposit/rate/forex/foreign-exchange-rates";
+               String str_url ="https://www.mobile01.com/rss/news.xml";
                URL url=null;
                try {
                    url=new URL(str_url);
@@ -38,13 +56,32 @@ public class MainActivity extends AppCompatActivity {
                    BufferedReader br=new BufferedReader(isr);
                    StringBuilder sb=new StringBuilder();
                    String str;
-
                    while ((str = br.readLine()) != null)
                    {
                        sb.append(str);
                    }
                    String str1 = sb.toString();
-                   Log.d("NET", str1);
+                   //Log.d("NET", str1);
+
+                   final MyHandler dataHandler = new MyHandler();
+                   SAXParserFactory spf = SAXParserFactory.newInstance();
+                   SAXParser sp = spf.newSAXParser();
+                   XMLReader xr = sp.getXMLReader();
+                   xr.setContentHandler(dataHandler);
+                   xr.parse(new InputSource(new StringReader(str1)));
+                   runOnUiThread(new Runnable() {
+                       @Override
+                       public void run() {
+                           ArrayList<String> list=dataHandler.getData();
+                           ArrayAdapter<String> adapter=new ArrayAdapter<String>(
+                                   MainActivity.this,android.R.layout.simple_list_item_1,list);
+                           lv.setAdapter(adapter);
+                       }
+                   });
+
+
+
+                   /*  由玉山銀行網頁找資料
                    int index1 = str1.indexOf("人民幣(CNY)");
                    int index2 = str1.indexOf("現金買入匯率", index1);
                    int index3 = str1.indexOf(">", index2);
@@ -52,13 +89,21 @@ public class MainActivity extends AppCompatActivity {
                    Log.d("NET", "index1:" + index1 + "index2:" + index2 + "index3:" + index3);
                    String data1 = str1.substring(index3+1, index4);
                    Log.d("NET", data1);
+                   */
                    br.close();
                    isr.close();
                    is.close();
+               } catch (MalformedURLException e) {
+                   e.printStackTrace();
+               } catch (ProtocolException e) {
+                   e.printStackTrace();
                } catch (IOException e) {
                    e.printStackTrace();
+               } catch (SAXException e) {
+                   e.printStackTrace();
+               } catch (ParserConfigurationException e) {
+                   e.printStackTrace();
                }
-
            }
        }.start();
     }
