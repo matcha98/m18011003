@@ -7,6 +7,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Student on 2018/1/10.
@@ -16,41 +18,66 @@ public class MyHandler extends DefaultHandler {
 
     boolean isTitle=false;
     boolean isItem=false;
-    ArrayList<String> list=new ArrayList<>();
+    boolean isLink=false;
+    StringBuilder sb=new StringBuilder();
+    public ArrayList<String> title = new ArrayList<>();
+    public ArrayList<String> link = new ArrayList<>();
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
-        if(qName.equals("item")){
-            isItem=true;
+        //Log.d("NET", qName);
+        if (qName.equals("title"))
+        {
+            isTitle = true;
         }
-        if(isItem && qName.equals("title")){
-            isTitle=true;
-            isItem=false;
+        if (qName.equals("item"))
+        {
+            isItem = true;
         }
-
+        if(qName.equals("link"))
+        {
+            isLink=true;
+        }
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         super.endElement(uri, localName, qName);
-        if(qName.equals("title"))
+        if (qName.equals("title"))
         {
-            isTitle=false;
+            isTitle = false;
+        }
+        if (qName.equals("item"))
+        {
+            isItem = false;
+        }
+        if(qName.equals("link"))
+        {
+            if(isItem){
+                link.add(sb.toString());
+                sb=new StringBuilder();
+            }
+            isLink=false;
         }
     }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         super.characters(ch, start, length);
-        if(isTitle)
+        if (isItem)
         {
-            Log.d("Title",new String(ch,start,length));
-            list.add(new String(ch,start,length));
+            if(isTitle)
+            {
+                Log.d("title", new String(ch, start, length));
+                title.add(new String(ch, start, length));
+;            }
+            if(isLink)
+            {
+                Log.d("link", new String(ch, start, length));
+                sb.append(new String(ch, start, length));
+            }
         }
+
     }
 
-    public ArrayList<String> getData()
-    {
-        return list;
-    }
 }
