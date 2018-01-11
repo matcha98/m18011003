@@ -5,10 +5,7 @@ import android.util.Log;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Student on 2018/1/10.
@@ -19,9 +16,12 @@ public class MyHandler extends DefaultHandler {
     boolean isTitle=false;
     boolean isItem=false;
     boolean isLink=false;
+    boolean isDescription=false;
     StringBuilder sb=new StringBuilder();
     public ArrayList<String> title = new ArrayList<>();
     public ArrayList<String> link = new ArrayList<>();
+    public ArrayList<String> img=new ArrayList<>();
+
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
@@ -37,6 +37,10 @@ public class MyHandler extends DefaultHandler {
         if(qName.equals("link"))
         {
             isLink=true;
+        }
+        if(qName.equals("description"))
+        {
+            isDescription=true;
         }
     }
 
@@ -59,6 +63,10 @@ public class MyHandler extends DefaultHandler {
             }
             isLink=false;
         }
+        if(qName.equals("description"))
+        {
+            isDescription=false;
+        }
     }
 
     @Override
@@ -75,6 +83,12 @@ public class MyHandler extends DefaultHandler {
             {
                 Log.d("link", new String(ch, start, length));
                 sb.append(new String(ch, start, length));
+            }
+            if(isDescription)
+            {
+                String str=new String(ch,start,length);
+                Log.d("description",str);
+
             }
         }
 
