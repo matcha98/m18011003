@@ -21,6 +21,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -29,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
     ListView lv;
     MyHandler dataHandler;
+    MyAdapter adapter;
+    ArrayList<Mobile01NewsItem> newsItems=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent it=new Intent(MainActivity.this,Main2Activity.class);
-                it.putExtra("link",dataHandler.link.get(i));
+                it.putExtra("link",dataHandler.newsItems.get(i).link);
                 startActivity(it);
             }
         });
@@ -61,8 +65,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 super.run();
-                //玉山銀行匯率查詢
-                //String str_url = "https://www.esunbank.com.tw/bank/personal/deposit/rate/forex/foreign-exchange-rates";
                 String str_url ="https://www.mobile01.com/rss/news.xml";
                 URL url=null;
                 try {
@@ -80,36 +82,38 @@ public class MainActivity extends AppCompatActivity {
                         sb.append(str);
                     }
                     String str1 = sb.toString();
-                    //Log.d("NET", str1);
 
-                    dataHandler = new MyHandler();
+                    dataHandler = new MyHandler(newsItems);
                     SAXParserFactory spf = SAXParserFactory.newInstance();
                     SAXParser sp = spf.newSAXParser();
                     XMLReader xr = sp.getXMLReader();
                     xr.setContentHandler(dataHandler);
                     xr.parse(new InputSource(new StringReader(str1)));
 
-                   /*  由玉山銀行網頁找資料
-                   int index1 = str1.indexOf("人民幣(CNY)");
-                   int index2 = str1.indexOf("現金買入匯率", index1);
-                   int index3 = str1.indexOf(">", index2);
-                   int index4 = str1.indexOf("<", index3);
-                   Log.d("NET", "index1:" + index1 + "index2:" + index2 + "index3:" + index3);
-                   String data1 = str1.substring(index3+1, index4);
-                   Log.d("NET", data1);
-                   */
-
-                    br.close();
-                    isr.close();
-                    is.close();
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
+                            adapter=new MyAdapter(MainActivity.this,newsItems);
+                            lv.setAdapter(adapter);
+                            /*
+                            String[] data=new String[dataHandler.newsItems.size()];
+                            for(int i=0;i<data.length;i++)
+                            {
+                                data[i]=dataHandler.newsItems.get(i).title;
+                            }
                            ArrayAdapter<String> adapter=new ArrayAdapter<String>(
-                                   MainActivity.this,android.R.layout.simple_list_item_1,dataHandler.title);
+                                   MainActivity.this,android.R.layout.simple_list_item_1,data);
                            lv.setAdapter(adapter);
+                           */
+
+
                         }
                     });
+                    br.close();
+                    isr.close();
+                    is.close();
+
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (ProtocolException e) {
