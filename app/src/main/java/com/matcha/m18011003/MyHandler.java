@@ -1,11 +1,14 @@
 package com.matcha.m18011003;
 
 import android.util.Log;
+import android.util.Patterns;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Student on 2018/1/10.
@@ -18,6 +21,7 @@ public class MyHandler extends DefaultHandler {
     boolean isLink=false;
     boolean isDescription=false;
     StringBuilder sb=new StringBuilder();
+    StringBuilder dessb=new StringBuilder();
     public ArrayList<Mobile01NewsItem> newsItems;
     Mobile01NewsItem item;
 
@@ -43,6 +47,7 @@ public class MyHandler extends DefaultHandler {
                 break;
             case "description":
                 isDescription=true;
+                dessb=new StringBuilder();
                 break;
         }
 
@@ -70,6 +75,20 @@ public class MyHandler extends DefaultHandler {
                 break;
             case "description":
                 isDescription=false;
+                if(isItem)
+                {
+                    String str=dessb.toString();
+                    Pattern pattern=Pattern.compile("http.*jpg");
+                    Matcher matcher=pattern.matcher(str);
+                    String imgurl="";
+                    if(matcher.find())
+                    {
+                        imgurl=matcher.group(0);
+                    }
+                    str=str.replaceAll("<img.*/>","");
+                    item.imgurl=imgurl;
+                    item.description=str;
+                }
                 break;
 
         }
@@ -93,8 +112,7 @@ public class MyHandler extends DefaultHandler {
             }
             if(isDescription)
             {
-                item.description=new String(ch,start,length);
-                Log.d("description",new String(ch,start,length));
+                dessb.append(new String(ch,start,length));
             }
         }
 

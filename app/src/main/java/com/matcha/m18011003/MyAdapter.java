@@ -1,6 +1,7 @@
 package com.matcha.m18011003;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -54,6 +59,7 @@ public class MyAdapter extends BaseAdapter {
 
         viewHolder.tv1.setText(newsItems.get(i).title);
         viewHolder.tv2.setText(newsItems.get(i).description);
+        Picasso.with(context).load(newsItems.get(i).imgurl).into(viewHolder.img);
 
         return view;
     }
