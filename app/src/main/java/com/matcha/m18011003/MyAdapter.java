@@ -48,7 +48,8 @@ public class MyAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         ViewHolder viewHolder;
-
+        if(view==null)
+        {
             LayoutInflater inflater=LayoutInflater.from(context);
             view=inflater.inflate(R.layout.myitem,null);
             viewHolder=new ViewHolder();
@@ -56,7 +57,11 @@ public class MyAdapter extends BaseAdapter {
             viewHolder.tv2=view.findViewById(R.id.textView2);
             viewHolder.img=view.findViewById(R.id.imageView);
             view.setTag(viewHolder);
-
+        }
+        else
+        {
+            viewHolder=(ViewHolder) view.getTag();
+        }
         viewHolder.tv1.setText(newsItems.get(i).title);
         viewHolder.tv2.setText(newsItems.get(i).description);
         Picasso.with(context).load(newsItems.get(i).imgurl).into(viewHolder.img);
